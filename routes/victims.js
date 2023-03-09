@@ -12,7 +12,6 @@ router.get("/", async (req, res) => {
   }
 });
 
-
 //*use passport >> only admin can post here
 router.post("/register", async (req, res) => {
   const victim = new Victim({
@@ -40,10 +39,36 @@ router.get("/:victimId", async (req, res) => {
   }
 });
 
+/*
+router.post("/findByAadhar", async (req, res) => {
+  try {
+    const victim = await Victim.findOne({ aadhar: req.body.aadhar });
+    res.status(200).send(victim);
+  } catch (err) {
+    res.status(401).send({
+      message: "Not Found",
+      error: err,
+    });
+  }
+});
+
+router.post("/findByPhone", async (req, res) => {
+  try {
+    const victim = await Victim.findOne({ phone: req.body.phone });
+    res.status(200).send(victim);
+  } catch (err) {
+    res.status(401).send({
+      message: "Not Found",
+      error: err,
+    });
+  }
+});
+*/
+
 router.delete("/:victimId", async (req, res) => {
   try {
     const removedVictim = await Victim.deleteOne({ _id: req.params.victimId });
-    res.json(removedVictim)
+    res.json(removedVictim);
   } catch (err) {
     res.json({ message: err });
   }
