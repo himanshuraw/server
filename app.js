@@ -20,6 +20,12 @@ app.use('/admin', adminRoute);
 app.post('/searchByAadhar', async (req, res) => {
 	try {
 		const victim = await Victim.findOne({ aadhar: req.body.aadhar });
+		if (!victim) {
+			res.status(401).send({
+				message: 'Not Found',
+				error: err,
+			});
+		}
 		res.status(200).send(victim);
 	} catch (err) {
 		res.status(401).send({
@@ -32,6 +38,12 @@ app.post('/searchByAadhar', async (req, res) => {
 app.post('/searchByPhone', async (req, res) => {
 	try {
 		const victim = await Victim.findOne({ phone: req.body.phone });
+		if (!victim) {
+			res.status(401).send({
+				message: 'Not Found',
+				error: err,
+			});
+		}
 		res.status(200).send(victim);
 	} catch (err) {
 		res.status(401).send({
