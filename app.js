@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const Victim = require('./models/Victim');
-
+const HelpRequest = require('./models/HelpRequest');
 require('dotenv/config');
 
 //Import Routes
@@ -49,6 +49,37 @@ app.post('/searchByPhone', async (req, res) => {
 		res.status(401).send({
 			message: 'Not Found',
 			error: err,
+		});
+	}
+});
+
+//get help request
+app.post('/request', async (req, res) => {
+	duplicate = await HelpRequest.findOne({ uniqueId: req.body.uniqueId });
+
+	if (duplicate) {
+		return res.status(200).send({
+			success: true,
+			message: "Please don't send multiple requests",
+		});
+	}
+
+	const request = new HelpRequest({
+		uniqueId: req.body.uniqueId,
+		latitude: req.body.latitude,
+		longitude: req.body.longitude,
+	});
+
+	try {
+		const savedRequest = await request.save();
+		return res.status(200).send({
+			success: true,
+			message: 'Request Send Sucessfully',
+		});
+	} catch (err) {
+		return res.send({
+			success: false,
+			message: `Request failed`,
 		});
 	}
 });
