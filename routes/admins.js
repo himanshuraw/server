@@ -4,6 +4,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const passport = require('passport');
 const victimRoute = require('./victims');
+const helpRequestRoute = require('./helpRequest');
 
 require('dotenv/config');
 require('../passport');
@@ -90,6 +91,12 @@ router.use(
 	'/victim',
 	passport.authenticate('jwt', { session: false }),
 	victimRoute
+);
+
+router.use(
+	'/helpRequest',
+	passport.authenticate('jwt', { session: false }),
+	helpRequestRoute
 );
 
 module.exports = router;
