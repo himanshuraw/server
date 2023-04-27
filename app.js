@@ -1,19 +1,83 @@
 const express = require('express');
-const app = express();
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const http = require('http');
+const { Server } = require('socket.io');
+
 const Victim = require('./models/Victim');
 const HelpRequest = require('./models/HelpRequest');
+
+const app = express();
 require('dotenv/config');
 
-//Import Routes
-
+//* Import Routes --------------------------------------------------------------------
 const adminRoute = require('./routes/admins');
+
+//* ----------------------------------------------------------------------------------
 
 app.use(cors());
 app.use(bodyParser.json());
 
+//? Socket ============================================================================
+const server = http.createServer(app);
+const io = new Server(server, {
+	cors: {
+		origin: '*',
+	},
+});
+
+io.on('connection', (socket) => {
+	console.log(`User connected: ${socket.id}`);
+
+	socket.on('send_request', async (data) => {
+		let response;
+		duplicate = await HelpRequest.findOne({ uniqueId: data.uniqueId });
+
+		if (duplicate) {
+			response = {
+				success: true,
+				message: "Please don't send multiple requests",
+			};
+		} else {
+			const request = new HelpRequest({
+				uniqueId: data.uniqueId,
+				latitude: data.latitude,
+				longitude: data.longitude,
+			});
+
+			try {
+				const savedRequest = await request.save();
+				response = {
+					success: true,
+					message: 'Request Send Sucessfully',
+				};
+			} catch (err) {
+				response = {
+					success: false,
+					message: `Request failed`,
+				};
+			}
+		}
+
+		socket.emit('callback', response);
+
+		let requests = [];
+		requests = await HelpRequest.find();
+
+		socket.broadcast.emit('recieve_request', requests);
+	});
+});
+
+const port = server.listen(5050);
+console.log(`Socket server is running on ${port.address().port}`);
+
+//? =====================================================================================
+
+const listener = app.listen(5000);
+console.log('Express server listening on port %d', listener.address().port);
+
+//* Routes ===============================================================================
 app.use('/admin', adminRoute);
 
 //Find victim
@@ -53,40 +117,6 @@ app.post('/searchByPhone', async (req, res) => {
 	}
 });
 
-//get help request
-app.post('/request', async (req, res) => {
-	duplicate = await HelpRequest.findOne({ uniqueId: req.body.uniqueId });
-
-	if (duplicate) {
-		return res.status(200).send({
-			success: true,
-			message: "Please don't send multiple requests",
-		});
-	}
-
-	const request = new HelpRequest({
-		uniqueId: req.body.uniqueId,
-		latitude: req.body.latitude,
-		longitude: req.body.longitude,
-	});
-
-	try {
-		const savedRequest = await request.save();
-		return res.status(200).send({
-			success: true,
-			message: 'Request Send Sucessfully',
-		});
-	} catch (err) {
-		return res.send({
-			success: false,
-			message: `Request failed`,
-		});
-	}
-});
-
 mongoose.connect(process.env.MONGO_URI, () =>
 	console.log('~~~CONNECTED TO DB~~~')
 );
-
-const listener = app.listen(5000);
-console.log('Express server listening on port %d', listener.address().port);
