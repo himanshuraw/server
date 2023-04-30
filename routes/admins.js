@@ -27,7 +27,7 @@ router.get('/', async (req, res) => {
 router.post('/register', async (req, res) => {
 	const duplicate = await Admin.findOne({ name: req.body.name });
 	if (duplicate) {
-		return res.status(400).send({
+		return res.send({
 			success: false,
 			message: 'Username already registered',
 		});
