@@ -69,13 +69,11 @@ io.on('connection', (socket) => {
 	});
 });
 
-const port = server.listen(5050);
-console.log(`Socket server is running on ${port.address().port}`);
-
-//? =====================================================================================
-
-const listener = app.listen(5000);
-console.log('Express server listening on port %d', listener.address().port);
+server.listen(process.env.PORT || 5000, () => {
+	var host = server.address().address;
+	var port = server.address().port;
+	console.log(`App listening at ${port}`);
+});
 
 //* Routes ===============================================================================
 app.use('/admin', adminRoute);
