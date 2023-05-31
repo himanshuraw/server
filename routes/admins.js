@@ -3,8 +3,10 @@ const Admin = require('../models/Admin');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const passport = require('passport');
+
 const victimRoute = require('./victims');
 const helpRequestRoute = require('./helpRequest');
+const countRouter = require('./count');
 
 require('dotenv/config');
 require('../passport');
@@ -97,6 +99,12 @@ router.use(
 	'/helpRequest',
 	passport.authenticate('jwt', { session: false }),
 	helpRequestRoute
+);
+
+router.use(
+	'/count',
+	passport.authenticate('jwt', { session: false }),
+	countRouter
 );
 
 module.exports = router;

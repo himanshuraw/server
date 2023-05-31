@@ -13,6 +13,7 @@ require('dotenv/config');
 
 //* Import Routes --------------------------------------------------------------------
 const adminRoute = require('./routes/admins');
+const Count = require('./models/Count');
 
 //* ----------------------------------------------------------------------------------
 
@@ -28,7 +29,7 @@ const io = new Server(server, {
 });
 
 io.on('connection', (socket) => {
-	console.log(`User connected: ${socket.id}`);
+	// console.log(`User connected: ${socket.id}`);
 
 	socket.on('send_request', async (data) => {
 		let response;
@@ -111,6 +112,24 @@ app.post('/searchByPhone', async (req, res) => {
 		res.status(401).send({
 			message: 'Not Found',
 			error: err,
+		});
+	}
+});
+
+app.get('/count', async (req, res) => {
+	try {
+		const count = await Count.find();
+		const victim = await Victim.find();
+		const saved = victim.length;
+		const savedData = {
+			name: 'saved',
+			count: saved,
+		};
+		count.push(savedData);
+		res.json(count);
+	} catch (err) {
+		res.json({
+			message: err,
 		});
 	}
 });
