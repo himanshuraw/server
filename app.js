@@ -125,8 +125,9 @@ app.get('/count', async (req, res) => {
 			name: 'saved',
 			count: saved,
 		};
-		count.push(savedData);
-		res.json(count);
+		const result = [count[0], savedData, count[1]];
+		// count.push(savedData);
+		res.json(result);
 	} catch (err) {
 		res.json({
 			message: err,
